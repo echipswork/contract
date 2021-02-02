@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2021 echips.work
+
 pragma solidity ^0.6.0;
 
 /**
@@ -650,8 +652,10 @@ contract EchipsPotato is EChipsERC20, Ownable, ReentrancyGuard {
 		userFarm[msg.sender].balances = 0;
 		userFarm[msg.sender].burningAmount = 0;
 		userFarm[msg.sender].periodFinish = 0;
-		
-		
+    }
+	
+	function burn(uint256 amount) external {
+        _burn(msg.sender, amount);
     }
 			
 	event Farm(address indexed user, uint256 amount);
