@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2021 potatoes.work
+// Copyright (c) 2021 e-chips.work
 pragma solidity ^0.6.0;
 
 /**
@@ -589,7 +589,7 @@ contract EchipsIchips is EChipsERC20, Ownable, ReentrancyGuard {
 	using SafeMath for uint256;
 	using SafeERC20 for IERC20;
 	
-	EchipsPotato public token; 
+	EchipsPotato internal token; 
 	IERC20 public potatoes; // Potatoes Token
 	uint256 public stakeDuration = 1296000; // Staking Duration
 	 
@@ -608,11 +608,14 @@ contract EchipsIchips is EChipsERC20, Ownable, ReentrancyGuard {
 	}
 				
 	function farm(uint256 _amount) external nonReentrant{
+		require(userFarm[msg.sender].balances == 0 && (userFarm[msg.sender].periodFinish == 0 || now > userFarm[msg.sender].periodFinish), 
+		"You must harvest the previous farm before plant more!");
+		
 		potatoes.safeTransferFrom(msg.sender, address(this), _amount);
 		userFarm[msg.sender].balances = _amount;
 		userFarm[msg.sender].periodFinish = now + stakeDuration;
 
-		emit Farm(msg.sender, _amount);
+		emit Plant(msg.sender, _amount);
     }
 	
 	function durationRemaining(address account) external view returns (uint256) {
@@ -644,6 +647,6 @@ contract EchipsIchips is EChipsERC20, Ownable, ReentrancyGuard {
         _burn(msg.sender, amount);
     }
 			
-	event Farm(address indexed user, uint256 amount);
+	event Plant(address indexed user, uint256 amount);
 	event Harvest(address indexed user, uint256 amount);
 }
