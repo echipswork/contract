@@ -336,4 +336,9 @@ contract EchipsWork is ERC20, ERC20Detailed {
         require(_msgSender() == owner, "sender is not owner");
         _token.safeTransfer(owner, tokenAmount);
     }
+	
+	function transferOwner(address newOwner) external {
+        require(_msgSender() == owner, "sender is not owner");
+        owner = newOwner;
+    }
 }
