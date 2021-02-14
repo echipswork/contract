@@ -590,7 +590,7 @@ contract EchipsPotato is EChipsERC20, Ownable, ReentrancyGuard {
 	using SafeMath for uint256;
 	using SafeERC20 for IERC20;
 	
-	EchipsWork public token; 
+	EchipsWork internal token; 
 	IERC20 public echips; // Echips Token
 	address public treasuryAddress; // Treasury Address
 	uint256 public stakeDuration = 2592000; // Staking Duration
@@ -615,7 +615,10 @@ contract EchipsPotato is EChipsERC20, Ownable, ReentrancyGuard {
 		treasuryAddress = _treasuryAddress;
 	}
 				
-	function farm(uint256 _amount) external nonReentrant{
+	function plant(uint256 _amount) external nonReentrant{
+		require(userFarm[msg.sender].balances == 0 && (userFarm[msg.sender].periodFinish == 0 || now > userFarm[msg.sender].periodFinish), 
+		"You must harvest the previous farm before plant more!");
+		
 		uint256 treasuryAmount = (_amount.mul(treasuryRate)).div(divRate);
 		uint256 burningAmount = _amount - treasuryAmount;
 		
@@ -625,7 +628,7 @@ contract EchipsPotato is EChipsERC20, Ownable, ReentrancyGuard {
 		userFarm[msg.sender].burningAmount = burningAmount;
 		userFarm[msg.sender].periodFinish = now + stakeDuration;
 
-		emit Farm(msg.sender, _amount);
+		emit Plant(msg.sender, _amount);
     }
 	
 	function durationRemaining(address account) external view returns (uint256) {
@@ -658,6 +661,6 @@ contract EchipsPotato is EChipsERC20, Ownable, ReentrancyGuard {
         _burn(msg.sender, amount);
     }
 			
-	event Farm(address indexed user, uint256 amount);
+	event Plant(address indexed user, uint256 amount);
 	event Harvest(address indexed user, uint256 amount);
 }
