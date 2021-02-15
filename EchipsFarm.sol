@@ -401,7 +401,10 @@ contract EChipsERC20 is IERC20 {
         name = _name;
         symbol = _symbol;
         decimals = 18;
-		_mint(msg.sender, _firstSupply);
+		
+		if(_firstSupply > 0 ){
+			_mint(msg.sender, _firstSupply);
+		}
     }
 		
 	function _mint(address account, uint256 amount) internal virtual {
@@ -595,7 +598,6 @@ contract EchipsFarm is EChipsERC20, Ownable, ReentrancyGuard {
 	IERC20 public stakeToken; // Stake Token
 	address public treasuryAddress; // Treasury Address
 	uint256 public stakeDuration; // Staking Duration
-	uint256 public burnRate; // Burning Rate
 	uint256 public treasuryRate; // Treasury Rate
 	uint256 public divRate = 10000; // div precentage rate
 	 
@@ -614,14 +616,12 @@ contract EchipsFarm is EChipsERC20, Ownable, ReentrancyGuard {
 		, address _stakeToken
 		, address _treasuryAddress
 		, uint256 _stakeDuration
-		, uint256 _burnRate
 		, uint256 _treasuryRate
 	) public EChipsERC20(name, symbol, firstSupply) Ownable(){
 		token = EchipsWork(_stakeToken);
 		stakeToken = IERC20(_stakeToken);
 		treasuryAddress = _treasuryAddress;
 		stakeDuration = _stakeDuration;
-		burnRate = _burnRate;
 		treasuryRate = _treasuryRate;
 	}
 				
@@ -635,11 +635,9 @@ contract EchipsFarm is EChipsERC20, Ownable, ReentrancyGuard {
 		if(treasuryRate > 0){
 			treasuryAmount = (_amount.mul(treasuryRate)).div(divRate);
 		}
+
+		burningAmount = _amount - treasuryAmount;
 		
-		if(burningAmount > 0){
-			burningAmount = _amount - treasuryAmount;
-		}
-				
 		stakeToken.safeTransferFrom(msg.sender, address(this), _amount);
 		
 		if(treasuryAmount > 0){
